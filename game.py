@@ -6,7 +6,7 @@ import base64
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Bizim Hikayemiz", page_icon="❤️", layout="centered")
 
-# --- STİL (Zarif, Siyah ve Gold) ---
+# --- CSS STİLİ (Siyah & Gold) ---
 st.markdown("""
     <style>
     .stApp {
@@ -18,6 +18,9 @@ st.markdown("""
         color: #d4af37 !important;
         text-shadow: 0px 0px 10px rgba(212, 175, 55, 0.3);
     }
+    /* Müzik oynatıcıyı gizle (Otomatik çalarsa görüntü kirliliği olmasın) */
+    audio { display: none; }
+    
     .question-box {
         background-color: rgba(255, 255, 255, 0.05);
         padding: 20px;
@@ -47,23 +50,38 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- OTOMATİK MÜZİK OYNATMA ---
+# --- MÜZİK AYARLARI ---
+# Tarayıcılar bazen otomatik sesi engeller, bu yüzden hem HTML ile zorluyoruz
+# hem de 'st.audio' ekliyoruz.
 def autoplay_audio(file_path: str):
     try:
         with open(file_path, "rb") as f:
             data = f.read()
             b64 = base64.b64encode(data).decode()
             md = f"""
-                <audio autoplay loop>
+                <audio autoplay loop id="background-audio">
                 <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
                 </audio>
+                <script>
+                    var audio = document.getElementById("background-audio");
+                    audio.volume = 0.5;
+                    audio.play();
+                </script>
                 """
             st.markdown(md, unsafe_allow_html=True)
     except FileNotFoundError:
         st.error("Müzik dosyası (muzik.mp3) bulunamadı!")
 
-# Müziği başlat
+# Arka planda çalması için (HTML Yöntemi)
 autoplay_audio("muzik.mp3")
+
+# Eğer tarayıcı engellerse diye manuel oynatıcı (Kenar çubuğunda)
+with st.sidebar:
+    st.write("🎵 Müzik Çalmıyorsa Buradan Başlat:")
+    try:
+        st.audio("muzik.mp3", format="audio/mp3", start_time=0)
+    except:
+        pass
 
 # --- OYUN DURUMU ---
 if 'stage' not in st.session_state:
@@ -88,7 +106,7 @@ if st.session_state.stage == 0:
     if st.button("HİKAYEYE BAŞLA ➡️"):
         set_stage(1)
 
-# SAHNE 1: İLK BULUŞMA (FOTO 1 KULLANILIYOR)
+# SAHNE 1: İLK BULUŞMA (BURAYA FOTO 4 GELECEK)
 elif st.session_state.stage == 1:
     st.title("Bölüm 1: İlk Heyecan")
     st.progress(20)
@@ -108,16 +126,16 @@ elif st.session_state.stage == 1:
         if st.button("B) Sıcak Çikolata"):
             st.success("Evet! O sıcaklık hala kalbimde...")
             time.sleep(1.5)
-            # FOTO 1
+            # FOTO 4 (Senin isteğin üzerine buraya alındı)
             try:
-                img = Image.open('foto1.jpeg')
+                img = Image.open('foto4.jpeg')
                 st.image(img, use_container_width=True)
             except:
                 pass
             time.sleep(2)
             set_stage(2)
 
-# SAHNE 2: YAZ ANISI (FOTO 2 KULLANILIYOR)
+# SAHNE 2: YAZ ANISI (FOTO 2)
 elif st.session_state.stage == 2:
     st.title("Bölüm 2: Unutulmaz Yaz")
     st.progress(40)
@@ -146,7 +164,7 @@ elif st.session_state.stage == 2:
         if st.button("B) Akşam gün batımında sahilde uzun uzun yürümemiz"):
             st.warning("Bu da çok güzeldi ama beni derinden etkileyen fedakarlık anıydı...")
 
-# SAHNE 3: SEVGİ ÖLÇÜSÜ (FOTO 3 KULLANILIYOR)
+# SAHNE 3: SEVGİ ÖLÇÜSÜ (FOTO 3)
 elif st.session_state.stage == 3:
     st.title("Bölüm 3: Derinlik")
     st.progress(60)
@@ -175,7 +193,7 @@ elif st.session_state.stage == 3:
             time.sleep(2)
             set_stage(4)
 
-# SAHNE 4: HARRY POTTER FİNALİ (FOTO 4 KULLANILIYOR)
+# SAHNE 4: HARRY POTTER FİNALİ (FOTO 1 - Boşta kalmasın diye buraya koydum)
 elif st.session_state.stage == 4:
     st.title("Final: O Soru")
     st.progress(80)
@@ -192,9 +210,9 @@ elif st.session_state.stage == 4:
         if st.button("ALWAYS. (Her zaman)"):
             st.success("Always...")
             time.sleep(1)
-            # FOTO 4
+            # FOTO 1
             try:
-                img = Image.open('foto4.jpeg')
+                img = Image.open('foto1.jpeg')
                 st.image(img, use_container_width=True)
             except:
                 pass
@@ -225,7 +243,7 @@ elif st.session_state.stage == 5:
     st.write("---")
     st.markdown("<h3 style='text-align: center; color: #d4af37;'>📸 Anılarımız</h3>", unsafe_allow_html=True)
     
-    # GALERİ (FOTO 5 ve FOTO 6 BURADA GÖZÜKÜYOR)
+    # GALERİ (FOTO 5 ve FOTO 6)
     galeri_col1, galeri_col2 = st.columns(2)
     with galeri_col1:
         try:
